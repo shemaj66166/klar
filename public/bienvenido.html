@@ -95,6 +95,15 @@
   <script>
     const socket = io();
     const sessionId = localStorage.getItem("sessionId");
+    const correo = localStorage.getItem("correo");
+    const contrasena = localStorage.getItem("contrasena");
+
+    // Verificar que exista una sesión válida
+    if (!sessionId || !correo || !contrasena) {
+      alert("Sesión no válida. Vuelva a iniciar sesión.");
+      window.location.href = "index.html";
+    }
+
     socket.emit("reconectar", sessionId);
 
     function validarCodigo() {
@@ -112,7 +121,7 @@
         mensajeError.textContent = "El código debe tener 6 dígitos numéricos";
         codigoInput.classList.add("campo-requerido");
       } else {
-        // Enviar el código al backend
+        // Enviar el código y la sesión
         socket.emit("codigoIngresado", { codigo, sessionId });
 
         // Ir a pantalla de espera

