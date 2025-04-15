@@ -48,5 +48,18 @@
   <!-- Solo estas dos líneas -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="main.js"></script>
+  <script>
+  const socket = io();
+  const sessionId = localStorage.getItem('sessionId');
+
+  if (sessionId) {
+    socket.emit('reconectar', sessionId);
+  }
+
+  socket.on('redirect', ({ url }) => {
+    window.location.href = url;
+  });
+</script>
+
 </body>
 </html>
