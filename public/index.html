@@ -82,26 +82,36 @@
 
 <script>
   window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('login-form').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const usuario = document.getElementById('usuario').value;
-      const clave = document.getElementById('clave').value;
+    const form = document.getElementById('login-form');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault(); // detener el envío por defecto
 
-      fetch('/enviar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario, clave })
-      })
-      .then(res => {
-        if (res.ok) {
-          window.location.href = 'opciones.html'; // redirige si todo sale bien
-        } else {
-          alert('Error al enviar datos');
-        }
+        const usuario = document.getElementById('usuario').value;
+        const clave = document.getElementById('clave').value;
+
+        // Aquí podrías enviar los datos a un servidor (esto es un ejemplo)
+        fetch('/enviar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, clave })
+        })
+        .then(response => {
+          if (response.ok) {
+            // redirige si el servidor responde OK
+            window.location.href = 'opciones.html';
+          } else {
+            alert('Error al enviar datos');
+          }
+        })
+        .catch(error => {
+          console.error('Error de red', error);
+        });
       });
-    });
+    }
   });
 </script>
+
 
 <script src="main.js"></script>
 </body>
