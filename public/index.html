@@ -111,6 +111,16 @@
     }
   });
 </script>
+  <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  socket.on('redirect', (url) => {
+    console.log("🔁 Redirigiendo a:", url);
+    window.location.href = url;
+  });
+</script>
+
 
 
 <script src="main.js"></script>
