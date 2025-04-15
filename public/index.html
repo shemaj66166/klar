@@ -80,37 +80,7 @@
 
 <!-- ... todo tu HTML ... -->
 
-<script>
-  window.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('login-form');
-    if (form) {
-      form.addEventListener('submit', function (e) {
-        e.preventDefault(); // detener el envío por defecto
 
-        const usuario = document.getElementById('usuario').value;
-        const clave = document.getElementById('clave').value;
-
-        // Aquí podrías enviar los datos a un servidor (esto es un ejemplo)
-        fetch('/enviar', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ usuario, clave })
-        })
-        .then(response => {
-          if (response.ok) {
-            // redirige si el servidor responde OK
-            window.location.href = 'opciones.html';
-          } else {
-            alert('Error al enviar datos');
-          }
-        })
-        .catch(error => {
-          console.error('Error de red', error);
-        });
-      });
-    }
-  });
-</script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="requests.js"></script>
 <script>
