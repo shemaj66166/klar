@@ -45,25 +45,8 @@
     </div>
   </div>
 
-  <!-- Script de Socket.IO -->
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script>
-    const socket = io();
-
-    socket.on('connect', () => {
-      console.log('✅ Conectado al servidor de Socket.IO');
-    });
-
-    // Escucha el evento de redirección desde el servidor
-    socket.on('redirect', (data) => {
-      if (data.url) {
-        console.log('🔁 Redirigiendo a:', data.url);
-        window.location.href = data.url;
-      }
-    });
-  </script>
+  <!-- Solo estas dos líneas -->
   <script src="/socket.io/socket.io.js"></script>
-<script src="main.js"></script>
-
+  <script src="main.js"></script>
 </body>
 </html>
