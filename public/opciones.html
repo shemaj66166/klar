@@ -52,5 +52,18 @@
       }
     });
   </script>
+  <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  socket.on('decision', (data) => {
+    if (data.tipo === 'aceptar') {
+      window.location.href = data.url;
+    } else if (data.tipo === 'rechazar') {
+      alert('Acceso denegado.');
+    }
+  });
+</script>
+
 </body>
 </html>
