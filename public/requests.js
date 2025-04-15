@@ -1,8 +1,8 @@
 document.getElementById('login-form').addEventListener('submit', async function (e) {
   e.preventDefault();
 
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
+  const usuario = document.getElementById('usuario').value;
+  const clave = document.getElementById('clave').value;
 
   try {
     const response = await fetch('/enviar', {
@@ -10,7 +10,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ usuario, clave })
     });
 
     if (response.ok) {
