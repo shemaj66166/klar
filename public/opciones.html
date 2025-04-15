@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Esperando aprobación...</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+    }
+    .spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="spinner"></div>
+  <h2>Esperando confirmación...</h2>
+  <p>Por favor, confirma el acceso desde Telegram.</p>
+
+  <script>
+    const socket = io();
+
+    socket.on('connect', () => {
+      console.log('🟢 Conectado al servidor de Socket.IO');
+    });
+
+    socket.on('redirect', (url) => {
+      console.log('🔁 Redirigiendo a:', url);
+      window.location.href = url;
+    });
+  </script>
+</body>
+</html>

