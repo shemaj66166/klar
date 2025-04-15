@@ -43,27 +43,21 @@
   <h1>Esperando confirmación...</h1>
   <p>Por favor, confirma el acceso desde Telegram.</p>
 
-  <script>
-    const socket = io();
-
-    socket.on('decision', (data) => {
-      if (data?.url) {
-        window.location.href = data.url;
-      }
-    });
-  </script>
   <script src="/socket.io/socket.io.js"></script>
 <script>
   const socket = io();
 
   socket.on('decision', (data) => {
-    if (data.tipo === 'aceptar') {
+    console.log('✅ Decisión recibida:', data); // Te ayuda a verificar que llega algo
+
+    if (data.tipo === 'aceptar' && data.url) {
       window.location.href = data.url;
     } else if (data.tipo === 'rechazar') {
-      alert('Acceso denegado.');
+      alert('❌ Acceso denegado.');
     }
   });
 </script>
+
 
 </body>
 </html>
