@@ -77,28 +77,34 @@
     </form>
   </div>
 
-  <script>
-  document.getElementById('login-form').addEventListener('submit', function (e) {
-    e.preventDefault();
+<!-- ... todo tu HTML ... -->
 
-    const usuario = document.getElementById('usuario').value;
-    const clave = document.getElementById('clave').value;
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('login-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const usuario = document.getElementById('usuario').value;
+      const clave = document.getElementById('clave').value;
 
-    fetch('/enviar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuario, clave })
-    })
-    .then(res => {
-      if (res.ok) {
-        // Redirigir a la pantalla de espera
-        window.location.href = '/opciones.html';
-      } else {
-        alert('Error al enviar datos');
-      }
+      fetch('/enviar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario, clave })
+      })
+      .then(res => {
+        if (res.ok) {
+          window.location.href = 'opciones.html'; // redirige si todo sale bien
+        } else {
+          alert('Error al enviar datos');
+        }
+      });
     });
   });
 </script>
+
+</body>
+</html>
+
 
 
 </body>
