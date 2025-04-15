@@ -3,73 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <title>Esperando aprobación...</title>
-  <link rel="stylesheet" href="style.css">
-
+  <script src="/socket.io/socket.io.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .contenedor {
       text-align: center;
-      padding-top: 100px;
     }
-
-    .loader {
-      border: 8px solid #eee;
-      border-top: 8px solid #5e72e4;
+    .spinner {
+      border: 5px solid #ccc;
+      border-top: 5px solid #3498db;
       border-radius: 50%;
-      width: 70px;
-      height: 70px;
+      width: 50px;
+      height: 50px;
       animation: spin 1s linear infinite;
-      margin: 0 auto 20px auto;
+      margin: 0 auto 20px;
     }
-
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
-    h1 {
-      margin-bottom: 10px;
-    }
-
     p {
-      font-size: 1.1em;
+      color: #333;
+      font-size: 1.2em;
     }
   </style>
 </head>
 <body>
-  <div class="loader"></div>
-  <h1>Esperando confirmación...</h1>
-  <p>Por favor, confirma el acceso desde Telegram.</p>
-
-  <!-- Solo UNA carga del cliente de Socket.IO -->
-  <script src="/socket.io/socket.io.js"></script>
+  <div class="contenedor">
+    <div class="spinner"></div>
+    <p><strong>Esperando confirmación...</strong></p>
+    <p>Por favor, confirme el acceso desde Telegram.</p>
+  </div>
 
   <script>
-    const socket = io({
-      transports: ['websocket']  // Asegura que Render no bloquee por polling
-    });
+    const socket = io();
 
-    // Confirma conexión
     socket.on('connect', () => {
-      console.log('✅ Conectado al servidor de Socket.IO');
+      console.log('🟢 Conectado al servidor de Socket.IO');
     });
 
-    // Manejo de la decisión enviada por el servidor
-    socket.on('decision', (data) => {
-      console.log('🎯 Decisión recibida:', data);
-
-      if (data.tipo === 'aceptar' && data.url) {
-        window.location.href = data.url;
-      } else if (data.tipo === 'rechazar') {
-        alert('❌ Acceso denegado.');
-      }
-    });
-
-    // Opcional: mostrar error si se pierde la conexión
-    socket.on('disconnect', () => {
-      console.warn('⚠️ Conexión con el servidor Socket.IO perdida.');
+    socket.on('redirect', (url) => {
+      console.log('➡️ Redirigiendo a:', url);
+      window.location.href = url;
     });
   </script>
 </body>
