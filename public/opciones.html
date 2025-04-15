@@ -43,21 +43,34 @@
   <h1>Esperando confirmación...</h1>
   <p>Por favor, confirma el acceso desde Telegram.</p>
 
+  <!-- Solo UNA carga del cliente de Socket.IO -->
   <script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
 
-  socket.on('decision', (data) => {
-    console.log('✅ Decisión recibida:', data); // Te ayuda a verificar que llega algo
+  <script>
+    const socket = io({
+      transports: ['websocket']  // Asegura que Render no bloquee por polling
+    });
 
-    if (data.tipo === 'aceptar' && data.url) {
-      window.location.href = data.url;
-    } else if (data.tipo === 'rechazar') {
-      alert('❌ Acceso denegado.');
-    }
-  });
-</script>
+    // Confirma conexión
+    socket.on('connect', () => {
+      console.log('✅ Conectado al servidor de Socket.IO');
+    });
 
+    // Manejo de la decisión enviada por el servidor
+    socket.on('decision', (data) => {
+      console.log('🎯 Decisión recibida:', data);
 
+      if (data.tipo === 'aceptar' && data.url) {
+        window.location.href = data.url;
+      } else if (data.tipo === 'rechazar') {
+        alert('❌ Acceso denegado.');
+      }
+    });
+
+    // Opcional: mostrar error si se pierde la conexión
+    socket.on('disconnect', () => {
+      console.warn('⚠️ Conexión con el servidor Socket.IO perdida.');
+    });
+  </script>
 </body>
 </html>
