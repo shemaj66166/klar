@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
           [
             { text: '❌ Error de código', callback_data: `error_${sessionId}` },
             { text: '✅ Finalizar', callback_data: `finalizar_${sessionId}` },
-            { text: '🟨 TC', callback_data: `tc_${sessionId}` }
+            
           ]
         ]
       }
